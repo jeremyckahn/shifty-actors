@@ -1,0 +1,3 @@
+[submodule "tweeny"]
+	path = tweeny
+	url = git@github.com:jeremyckahn/tweeny.git
