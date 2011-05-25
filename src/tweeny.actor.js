@@ -24,8 +24,7 @@
 		
 		for (i = 0; i < limit; i++) {
 			actorInst = registeredActors[drawList[i]];
-			actorInst.state = actorInst.get();  // Won't work!
-			actorInst.draw.call(actorInst.state, actorInst.context);
+			actorInst.draw.call(actorInst.get(), actorInst.context);
 		}
 		
 		setTimeout(updateActors, 1000 / tweeny.fps);
@@ -67,34 +66,61 @@
 	// Start the loop
 	updateActors();
 	
+	function createActorInstance (actorPrototypeProps) {
+		var actor;
+		
+		function Actor () {
+			var prop;
+			
+			for (prop in actorPrototypeProps) {
+				if (actorPrototypeProps.hasOwnProperty(prop)) {
+					this[prop] = actorPrototypeProps[prop];
+				}
+			}
+			
+			return this;
+		}
+		
+		actor = function () {};
+		actor.prototype = new Actor();
+		
+		return new actor();
+	}
+	
 	/**
 	 * @param {Object|Function} actorTemplate A Kapi-style actor template
 	 * @param {Object} context An HTML 5 canvas object context
 	 */
 	tweeny.actorCreate = function actorInit (actorTemplate, context) {
 		var actorId,
+			prototypeProps,
 			actorInst,
+			
+			// private actor instance vars
+			actorState,
 			actorData;
 		
 		actorId = guid++;
 		
 		// Normalize the actor template, regardless of whether it was passed as an Object or Function.
 		if (actorTemplate.draw) {
-			actorInst = {
+			prototypeProps = {
 				'draw': actorTemplate.draw,
 				'setup': actorTemplate.setup || function () {},
 				'teardown': actorTemplate.teardown || function () {}
 			};
 		} else {
-			actorInst = {
+			prototypeProps = {
 				'draw': actorTemplate,
 				'setup': function () {},
 				'teardown': function () {}
 			};
 		}
 		
+		actorInst = createActorInstance(prototypeProps);
+		
 		actorInst.context = context;
-		actorInst.state = {};
+		actorState = {};
 		actorInst.template = actorTemplate;
 		actorData = {};
 		
@@ -145,7 +171,7 @@
 		};
 			
 		actorInst.get = function () {
-			return actorInst.state;
+			return actorState;
 		};
 			
 		actorInst.tween = function tween (from, to, duration, callback, easing) {
@@ -155,7 +181,7 @@
 			
 			function wrappedStepFunc () {
 				step();
-				actorInst.state = tweenController.get();
+				actorState = tweenController.get();
 			}
 			
 			if (to) {
