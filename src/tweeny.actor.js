@@ -95,12 +95,15 @@
 		var actorId,
 			prototypeProps,
 			actorInst,
+			tweenController,
 			
 			// private actor instance vars
 			actorState,
 			actorData;
 		
 		actorId = guid++;
+		actorState = {};
+		actorData = {};
 		
 		// Normalize the actor template, regardless of whether it was passed as an Object or Function.
 		if (actorTemplate.draw) {
@@ -117,12 +120,8 @@
 			};
 		}
 		
+		prototypeProps.context = context;
 		actorInst = createActorInstance(prototypeProps);
-		
-		actorInst.context = context;
-		actorState = {};
-		actorInst.template = actorTemplate;
-		actorData = {};
 		
 		if (context) {
 			addContext(context);
@@ -135,17 +134,18 @@
 		registeredActors[actorId] = actorInst;
 		
 
-			// Add the actor to the draw list
+		// Add the actor to the draw list
 		actorInst.begin = function begin () {
 			drawList.push(actorId);
 			sortArrayNumerically(drawList);
 		};
 			
-			// Remove the actor from the draw list
+		// Remove the actor from the draw list
 		actorInst.stop = function stop () {
 			var i, limit;
 			
 			limit = drawList.length;
+			tweenController.stop();
 			
 			for (i = 0; i < limit; i++) {
 				if (drawList[i] === actorId) {
@@ -176,8 +176,7 @@
 			
 		actorInst.tween = function tween (from, to, duration, callback, easing) {
 			var normalizedTweenConfigObj,
-				step,
-				tweenController;
+				step;
 			
 			function wrappedStepFunc () {
 				step();
