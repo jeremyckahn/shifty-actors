@@ -4,11 +4,22 @@
 	var tweeny,
 		guid,
 		registeredActors,
-		drawList;
+		drawList,
+		contextList;
 		
+	function clearCanvases () {
+		var i, context;
+		
+		for (i = 0; i < contextList.length; i++) {
+			context = contextList[i];
+			context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+		}
+	}	
+	
 	function updateActors () {
 		var i, limit, actorInst;
 		
+		clearCanvases();
 		limit = drawList.length;
 		
 		for (i = 0; i < limit; i++) {
@@ -18,6 +29,18 @@
 		}
 		
 		setTimeout(updateActors, 1000 / tweeny.fps);
+	}
+	
+	function addContext (context) {
+		var i;
+		
+		for (i = 0; i < contextList.length; i++) {
+			if (contextList[i] === context) {
+				return;
+			}
+		}
+		
+		contextList.push(context);
 	}
 	
 	/**
@@ -30,16 +53,18 @@
 			return a - b;
 		});
 	}
-		
-	guid = 0;
-	registeredActors = {};
-	drawList = [];
 	
 	if (!global.tweeny) {
 		return;
 	}
 	
 	tweeny = global.tweeny;
+	guid = 0;
+	registeredActors = {};
+	drawList = [];
+	contextList = [];
+	
+	// Start the loop
 	updateActors();
 	
 	/**
@@ -72,6 +97,10 @@
 		actorInst.state = {};
 		actorInst.template = actorTemplate;
 		actorData = {};
+		
+		if (context) {
+			addContext(context);
+		}
 		
 		// Need to store the actor instance internally.  Things that need to be stored:
 		//   - Canvas context
@@ -158,14 +187,6 @@
 			tweenController = tweeny.tween(normalizedTweenConfigObj);
 		};
 
-		
-		// Attach all of the tweeny methods
-		/*for (prop in tweeny) {
-			if (tweeny.hasOwnProperty(prop) && typeof tweeny[prop] === 'function') {
-				actorController[prop] = tweeny[prop];
-			}
-		}*/
-		
 		//if (tweeny.queue) {
 			// Wrap the Tweeny queuing methods here if they are available
 		//}

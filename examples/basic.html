@@ -41,24 +41,9 @@
 	<script type="text/javascript" charset="utf-8" src="../util/actors.js"></script>
 	
 	<script type="text/javascript" charset="utf-8">
-		/*tweeny.tween({
-			from: {
-				'test': 0
-			},
-			to: {
-				'test': 10
-			},
-			'duration': 1000,
-			'step': function () {
-				console.log(this.test);
-			},
-			'callback': function () {
-				console.log('Done!  Final value: ' + this.test);
-			}
-		});*/
-		
 		var canvas, ctx, circleInst;
 		
+		tweeny.fps = 15;
 		canvas = document.getElementById('canvas');
 		ctx = canvas.getContext('2d');
 		
