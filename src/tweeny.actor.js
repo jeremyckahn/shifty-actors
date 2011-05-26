@@ -24,7 +24,7 @@
 		
 		for (i = 0; i < limit; i++) {
 			actorInst = registeredActors[drawList[i]];
-			actorInst.draw.call(actorInst.get(), actorInst.context);
+			actorInst.draw.call(actorInst.getState(), actorInst.context);
 		}
 		
 		setTimeout(updateActors, 1000 / tweeny.fps);
@@ -122,6 +122,10 @@
 		prototypeProps.context = context;
 		actorInst = createActorInstance(prototypeProps);
 		
+		actorInst.hookAdd('step', function (state) {
+			actorState = state;
+		});
+		
 		if (context) {
 			addContext(context);
 		}
@@ -160,60 +164,10 @@
 			actorInst.teardown.call(actorInst);
 			delete registeredActors[actorId];
 		};
-			
-		actorInst.data = function data (newData) {
-			if (newData) {
-				actorData = newData;
-			}
-			
-			return actorData;
-		};
-			
-		actorInst.get = function () {
+		
+		actorInst.getState = function () {
 			return actorState;
 		};
-			
-		actorInst.tween = function tween (from, to, duration, callback, easing) {
-			var normalizedTweenConfigObj,
-				step;
-			
-			function wrappedStepFunc () {
-				step();
-				actorState = tweenController.get();
-			}
-			
-			if (to) {
-				// Tween params were passed as formal params
-				step = function () {};
-				
-				normalizedTweenConfigObj = {
-					'step': wrappedStepFunc,
-					'from': from,
-					'to': to,
-					'duration': duration,
-					'callback': callback,
-					'easing': easing
-				};
-			} else {
-				// Tween params were passed as an Object
-				step = from.step || function () {};
-				
-				normalizedTweenConfigObj = {
-					'step': wrappedStepFunc,
-					'from': from.from,
-					'to': from.to,
-					'duration': from.duration,
-					'callback': from.callback,
-					'easing': from.easing
-				};
-			}
-			
-			tweenController = tweeny.tween(normalizedTweenConfigObj);
-		};
-
-		//if (tweeny.queue) {
-			// Wrap the Tweeny queuing methods here if they are available
-		//}
 		
 		return actorInst;
 	};
