@@ -82,9 +82,8 @@
 		}
 		
 		actor = function () {};
-		actor.prototype = new Actor();
-		
-		return new actor();
+		Actor.prototype = new tweeny.constructor();
+		return new Actor();
 	}
 	
 	/**
