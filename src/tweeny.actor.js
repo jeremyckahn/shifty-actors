@@ -24,7 +24,7 @@
 		
 		for (i = 0; i < limit; i++) {
 			actorInst = drawList[i];
-			actorInst.draw.call(actorInst.getState(), actorInst.context);
+			actorInst.draw.call(actorInst.actorState, actorInst.context);
 		}
 		
 		setTimeout(updateActors, 1000 / tweeny.fps);
@@ -47,14 +47,10 @@
 	 * @param {Array} array The Array to sort.
 	 * @returns {Array} The sorted Array.
 	 */
-	function sortArrayNumerically (array) {
+	function sortActorsById (array) {
 		return array.sort(function (a, b) {
-			return a - b;
+			return a.actorId - b.actorId;
 		});
-	}
-	
-	if (!global.Tweenable) {
-		return;
 	}
 	
 	tweeny = global.tweeny;
@@ -68,10 +64,6 @@
 	
 	function Twactor (actorTemplate, context) {
 		
-		this.actorId = guid++;
-		this.actorState = {};
-		this.actorData = {};
-		
 		/**
 		 * @param {Object|Function} actorTemplate A Kapi-style actor template
 		 * @param {Object} context An HTML 5 canvas object context
@@ -81,8 +73,15 @@
 			prop,
 			actorInst,
 			tweenController;
-			
+		
+		if (!global.Tweenable) {
+			return;
+		}
+		
 		self = this;
+		this.actorId = guid++;
+		this.actorState = {};
+		this.actorData = {};
 
 		// Normalize the actor template, regardless of whether it was passed as an Object or Function.
 		if (actorTemplate.draw) {
@@ -106,6 +105,7 @@
 		}
 		
 		this.context = context;
+		
 		if (this.context) {
 			addContext(this.context);
 		}
@@ -115,17 +115,17 @@
 		});
 
 		// Add the actor to the draw list
-		this.begin = function begin () {
-			drawList.push(this);
-			sortArrayNumerically(drawList);
+		this.start = function begin () {
+			drawList.push(self);
+			sortActorsById(drawList);
 		};
 
 		// Remove the actor from the draw list
-		this.stop = function stop () {
+		this.end = function stop () {
 			var i, limit;
 
 			limit = drawList.length;
-			tweenController.stop();
+			//tweenController.stop();
 
 			for (i = 0; i < limit; i++) {
 				if (drawList[i] === actorId) {
@@ -140,10 +140,6 @@
 			actorInst.stop();
 			actorInst.teardown.call(actorInst);
 			delete registeredActors[actorId];
-		};
-
-		this.getState = function () {
-			return self.actorState;
 		};
 
 		return this;
