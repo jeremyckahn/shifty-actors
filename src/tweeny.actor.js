@@ -23,7 +23,7 @@
 		limit = drawList.length;
 		
 		for (i = 0; i < limit; i++) {
-			actorInst = registeredActors[drawList[i]];
+			actorInst = drawList[i];
 			actorInst.draw.call(actorInst.getState(), actorInst.context);
 		}
 		
@@ -53,7 +53,7 @@
 		});
 	}
 	
-	if (!global.tweeny) {
+	if (!global.Tweenable) {
 		return;
 	}
 	
@@ -66,90 +66,67 @@
 	// Start the loop
 	updateActors();
 	
-	function createActorInstance (actorPrototypeProps) {
-		var actor;
+	function Twactor (actorTemplate, context) {
 		
-		function Actor () {
-			var prop;
-			
-			for (prop in actorPrototypeProps) {
-				if (actorPrototypeProps.hasOwnProperty(prop)) {
-					this[prop] = actorPrototypeProps[prop];
-				}
-			}
-			
-			return this;
-		}
+		this.actorId = guid++;
+		this.actorState = {};
+		this.actorData = {};
 		
-		actor = function () {};
-		Actor.prototype = new tweeny.constructor();
-		return new Actor();
-	}
-	
-	/**
-	 * @param {Object|Function} actorTemplate A Kapi-style actor template
-	 * @param {Object} context An HTML 5 canvas object context
-	 */
-	tweeny.actorCreate = function actorInit (actorTemplate, context) {
-		var actorId,
-			prototypeProps,
+		/**
+		 * @param {Object|Function} actorTemplate A Kapi-style actor template
+		 * @param {Object} context An HTML 5 canvas object context
+		 */
+		var self,
+			actorId,
+			prop,
 			actorInst,
-			tweenController,
+			tweenController;
 			
-			// private actor instance vars
-			actorState,
-			actorData;
-		
-		actorId = guid++;
-		actorState = {};
-		actorData = {};
-		
+		self = this;
+
 		// Normalize the actor template, regardless of whether it was passed as an Object or Function.
 		if (actorTemplate.draw) {
-			prototypeProps = {
+			this.prototypeProps = {
 				'draw': actorTemplate.draw,
 				'setup': actorTemplate.setup || function () {},
 				'teardown': actorTemplate.teardown || function () {}
 			};
 		} else {
-			prototypeProps = {
+			this.prototypeProps = {
 				'draw': actorTemplate,
 				'setup': function () {},
 				'teardown': function () {}
 			};
 		}
-		
-		prototypeProps.context = context;
-		actorInst = createActorInstance(prototypeProps);
-		
-		actorInst.hookAdd('step', function (state) {
-			actorState = state;
-		});
-		
-		if (context) {
-			addContext(context);
+
+		for (prop in this.prototypeProps) {
+			if (this.prototypeProps.hasOwnProperty(prop)) {
+				this[prop] = this.prototypeProps[prop];
+			}
 		}
 		
-		// Need to store the actor instance internally.  Things that need to be stored:
-		//   - Canvas context
-		//   - A reference to the actor template
-		//   - Arbitrary actor `data`
-		registeredActors[actorId] = actorInst;
-		
+		this.context = context;
+		if (this.context) {
+			addContext(this.context);
+		}
+
+		this.hookAdd('step', function (state) {
+			self.actorState = state;
+		});
 
 		// Add the actor to the draw list
-		actorInst.begin = function begin () {
-			drawList.push(actorId);
+		this.begin = function begin () {
+			drawList.push(this);
 			sortArrayNumerically(drawList);
 		};
-			
+
 		// Remove the actor from the draw list
-		actorInst.stop = function stop () {
+		this.stop = function stop () {
 			var i, limit;
-			
+
 			limit = drawList.length;
 			tweenController.stop();
-			
+
 			for (i = 0; i < limit; i++) {
 				if (drawList[i] === actorId) {
 					drawList.splice(i, 1);
@@ -157,19 +134,22 @@
 				}
 			}
 		};
-			
+
 		// Remove the actor completely
-		actorInst.destroy = function destroy () {
+		this.destroy = function destroy () {
 			actorInst.stop();
 			actorInst.teardown.call(actorInst);
 			delete registeredActors[actorId];
 		};
-		
-		actorInst.getState = function () {
-			return actorState;
+
+		this.getState = function () {
+			return self.actorState;
 		};
-		
-		return actorInst;
-	};
+
+		return this;
+	}
+	
+	Twactor.prototype = new global.Tweenable();
+	global.Twactor = Twactor;
 	
 }(this));
