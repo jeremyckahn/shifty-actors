@@ -56,17 +56,8 @@
 			return;
 		}
 		
-		/*this.prototype = new global.Tweenable();
-		
-		for (prop in this.prototype) {
-			if (this.prototype.hasOwnProperty(prop)) {
-				this[prop] = this.prototype[prop];
-			}
-		}*/
-		
 		self = this;
 		this.actorId = guid++;
-		this.actorState = {};
 		this.actorData = {};
 
 		// Normalize the actor template, regardless of whether it was passed as an Object or Function.
