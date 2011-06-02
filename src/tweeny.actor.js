@@ -7,7 +7,8 @@
 		contextList;
 		
 	function clearCanvases () {
-		var i, context;
+		var i, 
+			context;
 		
 		for (i = 0; i < contextList.length; i++) {
 			context = contextList[i];
@@ -43,20 +44,25 @@
 	drawList = [];
 	contextList = [];
 	
-	function Twactor (actorTemplate, context) {
-		
+	function Actor (actorTemplate, context) {
 		/**
 		 * @param {Object|Function} actorTemplate A Kapi-style actor template
 		 * @param {Object} context An HTML 5 canvas object context
 		 */
 		var self,
-			actorId,
-			prop,
-			actorInst;
+			prop;
 		
 		if (!global.Tweenable) {
 			return;
 		}
+		
+		/*this.prototype = new global.Tweenable();
+		
+		for (prop in this.prototype) {
+			if (this.prototype.hasOwnProperty(prop)) {
+				this[prop] = this.prototype[prop];
+			}
+		}*/
 		
 		self = this;
 		this.actorId = guid++;
@@ -65,22 +71,22 @@
 
 		// Normalize the actor template, regardless of whether it was passed as an Object or Function.
 		if (actorTemplate.draw) {
-			this.prototypeProps = {
+			this.templateProps = {
 				'draw': actorTemplate.draw,
 				'setup': actorTemplate.setup || function () {},
 				'teardown': actorTemplate.teardown || function () {}
 			};
 		} else {
-			this.prototypeProps = {
+			this.templateProps = {
 				'draw': actorTemplate,
 				'setup': function () {},
 				'teardown': function () {}
 			};
 		}
 
-		for (prop in this.prototypeProps) {
-			if (this.prototypeProps.hasOwnProperty(prop)) {
-				this[prop] = this.prototypeProps[prop];
+		for (prop in this.templateProps) {
+			if (this.templateProps.hasOwnProperty(prop)) {
+				this[prop] = this.templateProps[prop];
 			}
 		}
 		
@@ -89,10 +95,6 @@
 		if (this.context) {
 			addContext(this.context);
 		}
-
-		this.hookAdd('step', function (state) {
-			self.actorState = state;
-		});
 
 		// Add the actor to the draw list
 		this.stage = function begin () {
@@ -118,30 +120,41 @@
 
 		// Remove the actor completely
 		this.destroy = function destroy () {
-			actorInst.stop();
-			actorInst.teardown.call(actorInst);
-			delete registeredActors[actorId];
+			this._tweenParams.tweenController.stop();
+			this.unstage();
+			this.teardown.call(this);
+			delete registeredActors[this.actorId];
 		};
 
 		return this;
 	}
 	
+	function Twactor (actorTemplate, context) {
+		var inst;
+		
+		inst = Actor;
+		inst.prototype = new global.Tweenable();
+		return new inst(actorTemplate, context);
+	}
+	
+	Twactor.fps = 20;
+	
 	(function updateActors () {
-		var i, limit, actorInst;
+		var i, 
+			limit, 
+			actorInst;
 		
 		clearCanvases();
 		limit = drawList.length;
 		
 		for (i = 0; i < limit; i++) {
 			actorInst = drawList[i];
-			actorInst.draw.call(actorInst.actorState, actorInst.context);
+			actorInst.draw.call(actorInst._state.current, actorInst.context);
 		}
 		
 		setTimeout(updateActors, 1000 / Twactor.fps);
 	}());
 	
-	Twactor.fps = 20;
-	Twactor.prototype = new global.Tweenable();
 	global.Twactor = Twactor;
 	
 }(this));

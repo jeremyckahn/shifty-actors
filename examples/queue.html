@@ -48,8 +48,8 @@
 		canvas = document.getElementById('canvas');
 		ctx = canvas.getContext('2d');
 		
-		circleInst = tweeny.actorCreate(circle, ctx);
-		circleInst.begin();
+		circleInst = Twactor(circle, ctx);
+		circleInst.stage();
 		
 		circleInst.queue({
 			from: {

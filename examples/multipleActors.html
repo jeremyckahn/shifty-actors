@@ -42,19 +42,22 @@
 	<script type="text/javascript" charset="utf-8" src="../util/actors.js"></script>
 	
 	<script type="text/javascript" charset="utf-8">
-		var canvas, ctx, circleInst;
+		var canvas, 
+				ctx, 
+				circleInst,
+				circleInst2;
 		
 		tweeny.fps = 15;
 		canvas = document.getElementById('canvas');
 		ctx = canvas.getContext('2d');
 		
-		circleInst = tweeny.actorCreate(circle, ctx);
-		circleInst2 = tweeny.actorCreate(circle, ctx);
+		circleInst = Twactor(circle, ctx);
+		circleInst.stage();
 		
-		circleInst.begin();
-		circleInst2.begin();
+		circleInst2 = Twactor(circle, ctx);
+		circleInst2.stage();
 		
-		circleInst.queue({
+		circleInst.tween({
 			from: {
 				x: 100,
 				y: 100,
@@ -65,38 +68,25 @@
 				y: 200,
 				radius: 75
 			},
-			duration: 1000
+			duration: 2000
 		});
 		
-		circleInst.queue({
+		circleInst2.tween({
 			from: {
-				x: 200,
-				y: 200,
-				radius: 75
-			},
-			to: {
-				x: 300,
-				y: 50,
-				radius: 50
-			},
-			duration: 1000
-		});
-		
-		circleInst2.queue({
-			from: {
-				x: 300,
-				y: 50,
-				radius: 75
-			},
-			to: {
-				x: 50,
+				x: 400,
 				y: 300,
 				radius: 50
 			},
-			duration: 1000
+			to: {
+				x: 40,
+				y: 40,
+				radius: 75
+			},
+			duration: 2000
 		});
 		
 		window.circleInst = circleInst;
+		window.circleInst2 = circleInst2;
 		
 	</script>
 
