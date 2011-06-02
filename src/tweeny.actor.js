@@ -1,8 +1,7 @@
 /*global setTimeout:true */
 
-(function tweenyActor (global) {
-	var tweeny,
-		guid,
+(function (global) {
+	var guid,
 		registeredActors,
 		drawList,
 		contextList;
@@ -15,20 +14,6 @@
 			context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 		}
 	}	
-	
-	function updateActors () {
-		var i, limit, actorInst;
-		
-		clearCanvases();
-		limit = drawList.length;
-		
-		for (i = 0; i < limit; i++) {
-			actorInst = drawList[i];
-			actorInst.draw.call(actorInst.actorState, actorInst.context);
-		}
-		
-		setTimeout(updateActors, 1000 / tweeny.fps);
-	}
 	
 	function addContext (context) {
 		var i;
@@ -53,14 +38,10 @@
 		});
 	}
 	
-	tweeny = global.tweeny;
 	guid = 0;
 	registeredActors = {};
 	drawList = [];
 	contextList = [];
-	
-	// Start the loop
-	updateActors();
 	
 	function Twactor (actorTemplate, context) {
 		
@@ -71,8 +52,7 @@
 		var self,
 			actorId,
 			prop,
-			actorInst,
-			tweenController;
+			actorInst;
 		
 		if (!global.Tweenable) {
 			return;
@@ -115,20 +95,21 @@
 		});
 
 		// Add the actor to the draw list
-		this.start = function begin () {
+		this.stage = function begin () {
 			drawList.push(self);
 			sortActorsById(drawList);
 		};
 
 		// Remove the actor from the draw list
-		this.end = function stop () {
-			var i, limit;
+		this.unstage = function stop () {
+			var i, 
+				limit;
 
 			limit = drawList.length;
-			//tweenController.stop();
+			this._tweenParams.tweenController.stop();
 
 			for (i = 0; i < limit; i++) {
-				if (drawList[i] === actorId) {
+				if (drawList[i] === this) {
 					drawList.splice(i, 1);
 					i = limit;
 				}
@@ -145,6 +126,21 @@
 		return this;
 	}
 	
+	(function updateActors () {
+		var i, limit, actorInst;
+		
+		clearCanvases();
+		limit = drawList.length;
+		
+		for (i = 0; i < limit; i++) {
+			actorInst = drawList[i];
+			actorInst.draw.call(actorInst.actorState, actorInst.context);
+		}
+		
+		setTimeout(updateActors, 1000 / Twactor.fps);
+	}());
+	
+	Twactor.fps = 20;
 	Twactor.prototype = new global.Tweenable();
 	global.Twactor = Twactor;
 	
