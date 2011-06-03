@@ -65,6 +65,13 @@
 			duration: 2000
 		});
 		
+		setTimeout(function () {
+			tween.pause();
+			setTimeout(function () {
+				tween.resume();
+			}, 500);
+		}, 500);
+		
 		window.circleInst = circleInst;
 		
 	</script>
