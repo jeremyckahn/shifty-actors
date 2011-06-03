@@ -51,10 +51,10 @@
 		canvas = document.getElementById('canvas');
 		ctx = canvas.getContext('2d');
 		
-		circleInst = Twactor(circle, ctx);
+		circleInst = new Twactor(circle, ctx);
 		circleInst.stage();
 		
-		circleInst2 = Twactor(circle, ctx);
+		circleInst2 = new Twactor(circle, ctx);
 		circleInst2.stage();
 		
 		circleInst.queue({
