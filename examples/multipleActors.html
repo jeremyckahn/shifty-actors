@@ -47,10 +47,9 @@
 				circleInst,
 				circleInst2;
 		
-		tweeny.fps = 15;
 		canvas = document.getElementById('canvas');
 		ctx = canvas.getContext('2d');
-		
+		Twactor.fps = 20;
 		circleInst = new Twactor(circle, ctx);
 		circleInst.stage();
 		

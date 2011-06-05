@@ -44,7 +44,7 @@
 	drawList = [];
 	contextList = [];
 	
-	function Twactor (actorTemplate, context) {
+	function Twactor (actorTemplate, context, options) {
 		/**
 		 * @param {Object|Function} actorTemplate A Kapi-style actor template
 		 * @param {Object} context An HTML 5 canvas object context
@@ -57,7 +57,7 @@
 		}
 		
 		self = this;
-		this.init();
+		this.init(options);
 		this.actorId = guid++;
 		this.actorData = {};
 
