@@ -49,11 +49,11 @@
 		
 		canvas = document.getElementById('canvas');
 		ctx = canvas.getContext('2d');
-		Twactor.fps = 20;
-		circleInst = new Twactor(circle, ctx);
+		Actor.fps = 20;
+		circleInst = new Actor(circle, ctx);
 		circleInst.stage();
 		
-		circleInst2 = new Twactor(circle, ctx);
+		circleInst2 = new Actor(circle, ctx);
 		circleInst2.stage();
 		
 		circleInst.tween({

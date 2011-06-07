@@ -44,7 +44,7 @@
 	drawList = [];
 	contextList = [];
 	
-	function Twactor (actorTemplate, context, options) {
+	function Actor (actorTemplate, context, options) {
 		/**
 		 * @param {Object|Function} actorTemplate A Kapi-style actor template
 		 * @param {Object} context An HTML 5 canvas object context
@@ -121,8 +121,8 @@
 		return this;
 	}
 	
-	Twactor.prototype = new global.Tweenable();
-	Twactor.fps = 20;
+	Actor.prototype = new global.Tweenable();
+	Actor.fps = 20;
 	
 	(function updateActors () {
 		var i, 
@@ -137,9 +137,9 @@
 			actorInst.draw.call(actorInst._state.current, actorInst.context);
 		}
 		
-		setTimeout(updateActors, 1000 / Twactor.fps);
+		setTimeout(updateActors, 1000 / Actor.fps);
 	}());
 	
-	global.Twactor = Twactor;
+	global.Actor = Actor;
 	
 }(this));
