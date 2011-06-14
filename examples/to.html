@@ -56,14 +56,23 @@
 		});
 		circleInst.stage();
 		
-		tween = circleInst.to({
-			to: {
-				x: 200,
-				y: 200,
-				radius: 75
-			},
-			duration: 1000
-		});
+		tween = circleInst
+			.queue({
+				target: {
+					x: 200,
+					y: 200,
+					radius: 75
+				},
+				duration: 1000
+			})
+			.queue({
+				target: {
+					x: 200,
+					y: 100,
+					radius: 50
+				},
+				duration: 500
+			});
 		
 		window.circleInst = circleInst;
 		
