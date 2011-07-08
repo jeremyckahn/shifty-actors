@@ -59,7 +59,8 @@
 		self = this;
 		
 		// `call` `Tweenable`'s constructor on `this`.
-		global.Tweenable.call(this, options);
+		//global.Tweenable.call(this, options);
+		this.constructor.call(this, options);
 		this.actorId = guid++;
 		this.actorData = {};
 
