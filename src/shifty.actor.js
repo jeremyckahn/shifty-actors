@@ -57,7 +57,9 @@
 		}
 		
 		self = this;
-		this.init(options);
+		
+		// `call` `Tweenable`'s constructor on `this`.
+		global.Tweenable.call(this, options);
 		this.actorId = guid++;
 		this.actorData = {};
 
@@ -121,7 +123,8 @@
 		return this;
 	}
 	
-	Actor.prototype = new global.Tweenable();
+	// Share the prototype.
+	Actor.prototype = global.Tweenable.prototype;
 	Actor.fps = 20;
 	
 	(function updateActors () {
